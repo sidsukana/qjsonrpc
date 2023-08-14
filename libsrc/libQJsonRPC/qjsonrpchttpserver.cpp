@@ -284,7 +284,18 @@ void QJsonRpcHttpServer::incomingConnection(int socketDescriptor)
         // connect ssl error signals etc
 
         // NOTE: unsafe
-        connect(socket, SIGNAL(sslErrors(QList<QSslError>)), socket, SLOT(ignoreSslErrors()));
+        //connect(socket, SIGNAL(sslErrors(QList<QSslError>)), socket, SLOT(ignoreSslErrors()));
+        connect(socket, &QSslSocket::peerVerifyError, this, [=](const QSslError &error) {
+            qJsonRpcDebug() << "QSslSocket::peerVerifyError:" << error;
+            //socket->ignoreSslErrors();
+        });
+        connect(socket, &QSslSocket::errorOccurred, this, [=](QAbstractSocket::SocketError error){
+            qJsonRpcDebug() << "QSslSocket::errorOccurred:" << error;
+        });
+        connect(socket, QOverload<const QList<QSslError> &>::of(&QSslSocket::sslErrors), this, [socket](const QList<QSslError> &errors){
+            qJsonRpcDebug() << "QSslSocket::sslErrors:" << errors;
+            //socket->ignoreSslErrors();
+        });
     }
 
     connect(socket, SIGNAL(disconnected()), this, SLOT(_q_socketDisconnected()));
