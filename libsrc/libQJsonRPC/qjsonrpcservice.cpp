@@ -280,7 +280,9 @@ static inline QVariant convertArgument(const QJsonValue &argument,
                                        const QJsonRpcServicePrivate::ParameterInfo &info)
 {
     if (argument.isUndefined())
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x060000
+        return QVariant(QMetaType(info.type), Q_NULLPTR);
+#elif QT_VERSION >= 0x050000
         return QVariant(info.type, Q_NULLPTR);
 #else
         return QVariant(info.type, (const void *) NULL);
@@ -367,8 +369,13 @@ QJsonValue QJsonRpcServicePrivate::convertReturnValue(QVariant &returnValue)
 
 static inline QByteArray methodName(const QJsonRpcMessage &request)
 {
-    const QString &methodPath(request.method());
+#if QT_VERSION >= 0x060000
+    const QStringView &methodPath(request.method());
+    return methodPath.mid(methodPath.lastIndexOf(QStringLiteral("::")) + 2).toLatin1();
+#else
+    const QStringView &methodPath(request.method());
     return methodPath.midRef(methodPath.lastIndexOf("::") + 2).toLatin1();
+#endif
 }
 
 QJsonRpcMessage QJsonRpcService::dispatch(const QJsonRpcMessage &request)
@@ -403,7 +410,10 @@ QJsonRpcMessage QJsonRpcService::dispatch(const QJsonRpcMessage &request)
             idx = methodIndex;
             arguments.reserve(info.parameters.size());
             returnType = static_cast<QMetaType::Type>(info.returnType);
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x060000
+            returnValue = (returnType == QMetaType::Void) ?
+                        QVariant() : QVariant(QMetaType(returnType), Q_NULLPTR);
+#elif QT_VERSION >= 0x050000
             returnValue = (returnType == QMetaType::Void) ?
                         QVariant() : QVariant(returnType, Q_NULLPTR);
 #else

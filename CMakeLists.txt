@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 COMPONENTS Core Network REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network REQUIRED)
 
 file(GLOB SOURCES
     libsrc/libQJsonRPC/*.cpp
@@ -30,7 +31,7 @@ target_include_directories(qjsonrpc PUBLIC
     libsrc/libQJsonRPC/Private/http-parser
 )
 
-target_link_libraries(qjsonrpc Qt5::Core Qt5::Network)
+target_link_libraries(qjsonrpc Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network)
 
 
 
