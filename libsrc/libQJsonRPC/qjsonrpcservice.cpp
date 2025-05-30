@@ -373,7 +373,7 @@ static inline QByteArray methodName(const QJsonRpcMessage &request)
     const QStringView &methodPath(request.method());
     return methodPath.mid(methodPath.lastIndexOf(QStringLiteral("::")) + 2).toLatin1();
 #else
-    const QStringView &methodPath(request.method());
+    const QString &methodPath(request.method());
     return methodPath.midRef(methodPath.lastIndexOf("::") + 2).toLatin1();
 #endif
 }
