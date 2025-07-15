@@ -77,7 +77,7 @@ void QJsonRpcSocketPrivate::writeData(const QJsonRpcMessage &message)
 #else
     QByteArray data = doc.toJson();
 #endif
-
+    data.append("\n");
     device.data()->write(data);
     qJsonRpcDebug() << "sending(" << q << "): " << data;
 }
